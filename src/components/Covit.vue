@@ -1,52 +1,99 @@
 <template>
-  <div class="tabla-estados">
-    <ul>
-      <li v-for="(estado, indice) in codigoEstados" :key="indice">{{ estado }}</li>
+  <h1 v-show="false">{{ this.APIListarCodigosEstado() }}</h1>
+  <div>
+    <ul class="tabla-estados">
+      <li v-for="(estado, indice) in codigoEstados" :key="indice">
+        {{ estado }}
+      </li>
     </ul>
   </div>
-  <input type="text" v-on:keyup.enter="consulatar" v-model="codigo" placeholder="Ingrese codigo de estado"/>
-  <div class="consulta">
-    <label for="">Casos positivos:</label>
-    <input type="text" :value="datos.positive"/>
-    <label for="">Total de resultados de pruebas:</label>
-    <input type="text" :value="datos.totalTestResults"/>
-    <label for="">Actualmente hospitalizados:</label>
-    <input type="text" :value="datos.hospitalizedCurrently"/>
-    <label for="">Muertos:</label>
-    <input type="text" :value="datos.death"/>
-    <label for="">Casos positivos virales:</label>
-    <input type="text" :value="datos.totalTestsViral"/>
-    <label for="">Número de aumento en muertes:</label>
-    <input type="text" :value="datos.deathIncrease"/>
+  <input
+    type="text"
+    class="busqueda"
+    v-on:keyup.enter="consulatar"
+    v-model="codigo"
+    placeholder="Ingrese codigo de estado"
+  />
+  <div class="consulta" v-show="consulta">
+    <div class="consulta-item">
+      <label for="">Casos positivos:</label>
+      <input
+        type="text"
+        readonly
+        onmousedown="return false;"
+        :value="datos.positive"
+      />
+    </div>
+    <div class="consulta-item">
+      <label for="">Total de resultados de pruebas:</label>
+      <input
+        type="text"
+        readonly
+        onmousedown="return false;"
+        :value="datos.totalTestResults"
+      />
+    </div>
+    <div class="consulta-item">
+      <label for="">Actualmente hospitalizados:</label>
+      <input
+        type="text"
+        readonly
+        onmousedown="return false;"
+        :value="datos.hospitalizedCurrently"
+      />
+    </div>
+    <div class="consulta-item">
+      <label for="">Muertos:</label>
+      <input
+        type="text"
+        readonly
+        onmousedown="return false;"
+        :value="datos.death"
+      />
+    </div>
+    <div class="consulta-item">
+      <label for="">Casos positivos virales:</label>
+      <input
+        type="text"
+        readonly
+        onmousedown="return false;"
+        :value="datos.totalTestsViral"
+      />
+    </div>
+    <div class="consulta-item">
+      <label for="">Número de aumento en muertes:</label>
+      <input
+        type="text"
+        readonly
+        onmousedown="return false;"
+        :value="datos.deathIncrease"
+      />
+    </div>
   </div>
-  <button @click="setCodigoEstados">Probar</button>
 </template>
 
 <script>
 export default {
   data() {
     return {
-      codigoEstados: [],
-      codigo: '',
+      codigoEstados: this.APIListarCodigosEstado(),
+      codigo: "",
+      consulta: false,
       datos: {
-        positive: '',
-        totalTestResults: '',
-        hospitalizedCurrently: '',
-        death: '',
-        totalTestsViral: '',
-        deathIncrease: ''
+        positive: "",
+        totalTestResults: "",
+        hospitalizedCurrently: "",
+        death: "",
+        totalTestsViral: "",
+        deathIncrease: "",
       },
     };
   },
   methods: {
     async consulatar() {
-        const estado = await this.APIConsulta(this.codigo)
-        console.log(estado.positive);
-        this.datos = estado
-    },
-    async setCodigoEstados(){
-        const lista = await this.APIListarCodigosEstado()
-        this.codigoEstados = lista
+      const estado = await this.APIConsulta(this.codigo);
+      this.datos = estado;
+      this.consulta = true;
     },
     async APIListarCodigosEstado() {
       const estados = await fetch(
@@ -56,11 +103,13 @@ export default {
       for (let i = 0; i <= 55; i++) {
         codigoEstados.push(estados[i].state);
       }
-      return codigoEstados;
+      this.codigoEstados = codigoEstados;
     },
     async APIConsulta(codigoEstado) {
       const estado = await fetch(
-        "https://api.covidtracking.com/v1/states/" + codigoEstado + "/current.json "
+        "https://api.covidtracking.com/v1/states/" +
+          codigoEstado +
+          "/current.json "
       ).then((r) => r.json());
       const consulta = {
         positive: estado.positive,
@@ -68,26 +117,70 @@ export default {
         hospitalizedCurrently: estado.hospitalizedCurrently,
         death: estado.death,
         totalTestsViral: estado.totalTestsViral,
-        deathIncrease: estado.deathIncrease
-      }
-      return consulta
+        deathIncrease: estado.deathIncrease,
+      };
+      return consulta;
     },
   },
+  mounted(){
+    console.log('mounted');
+  },
+  beforeCreate(){
+    console.log('beforeCreate');
+  },
+  created(){
+    console.log('created');
+  },
+  beforeMount(){
+    console.log('beforeMount');
+  },
+  beforeUpdate(){
+    //console.log('beforeUpdate');
+  },
+  updated(){
+    //console.log('updated');
+  },
+  activated(){
+    console.log('activated');
+  },
+  deactivated(){
+    console.log('deactivated');
+  },
+  beforeCreate(){
+    console.log('beforeCreate');
+  }
 };
 </script>
 
 <style>
-.consulta label,input {
-    display: block;
-} 
+.consulta label,
 input {
-    margin: 30px auto;
+  display: block;
+  text-align: left;
 }
 ul {
-    list-style: none;
+  list-style: none;
 }
 .tabla-estados {
-    display: grid;
-    grid-auto-columns: auto auto auto auto;
+  display: grid;
+  grid-template-columns: auto auto auto auto;
+  background-color: #fff0ff;
+  color: #4b1c71;
+  width: 200px;
+  margin: auto;
+  padding: 10px;
+}
+.busqueda {
+  font-size: large;
+  padding: 10px;
+  margin: 30px auto;
+}
+.consulta {
+  background-color: #dfe6e9;
+  width: 50vw;
+  margin: auto;
+}
+.consulta-item {
+  margin: 30px;
 }
 </style>
